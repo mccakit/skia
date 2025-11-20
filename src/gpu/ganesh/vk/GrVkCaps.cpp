@@ -738,23 +738,23 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
                                               (uint32_t)INT_MAX);
 }
 
-bool stencil_format_supported(const skgpu::VulkanInterface* interface,
+bool stencil_format_supported(const skgpu::VulkanInterface* iface,
                               VkPhysicalDevice physDev,
                               VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
-    GR_VK_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
+    GR_VK_CALL(iface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
     return SkToBool(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT & props.optimalTilingFeatures);
 }
 
-void GrVkCaps::initStencilFormat(const skgpu::VulkanInterface* interface,
+void GrVkCaps::initStencilFormat(const skgpu::VulkanInterface* iface,
                                  VkPhysicalDevice physDev) {
-    if (stencil_format_supported(interface, physDev, VK_FORMAT_S8_UINT)) {
+    if (stencil_format_supported(iface, physDev, VK_FORMAT_S8_UINT)) {
         fPreferredStencilFormat = VK_FORMAT_S8_UINT;
-    } else if (stencil_format_supported(interface, physDev, VK_FORMAT_D24_UNORM_S8_UINT)) {
+    } else if (stencil_format_supported(iface, physDev, VK_FORMAT_D24_UNORM_S8_UINT)) {
         fPreferredStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
     } else {
-        SkASSERT(stencil_format_supported(interface, physDev, VK_FORMAT_D32_SFLOAT_S8_UINT));
+        SkASSERT(stencil_format_supported(iface, physDev, VK_FORMAT_D32_SFLOAT_S8_UINT));
         fPreferredStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
     }
 }
@@ -849,7 +849,7 @@ GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) {
 }
 
 void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
-                               const skgpu::VulkanInterface* interface,
+                               const skgpu::VulkanInterface* iface,
                                VkPhysicalDevice physDev,
                                const VkPhysicalDeviceProperties& properties,
                                const VkPhysicalDeviceFeatures2& features,
@@ -864,7 +864,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -893,7 +893,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 3;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -931,7 +931,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -960,7 +960,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R5G6B5_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -979,7 +979,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_B5G6R5_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1007,7 +1007,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16B16A16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 3;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1043,7 +1043,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1064,7 +1064,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1084,7 +1084,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1103,7 +1103,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_A2B10G10R10_UNORM_PACK32;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1131,7 +1131,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_A2R10G10B10_UNORM_PACK32;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1157,7 +1157,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     if (rgba10x6Feature && rgba10x6Feature->formatRgba10x6WithoutYCbCrSampler) {
         constexpr VkFormat format = VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1177,7 +1177,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_B4G4R4A4_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1199,7 +1199,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R4G4B4A4_UNORM_PACK16;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1218,7 +1218,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1237,7 +1237,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1258,7 +1258,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1277,7 +1277,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16B16A16_UNORM;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1296,7 +1296,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_R16G16_SFLOAT;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
@@ -1316,7 +1316,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         constexpr VkFormat format = VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(contextOptions, interface, physDev, properties, format);
+            info.init(contextOptions, iface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1337,7 +1337,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         constexpr VkFormat format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(contextOptions, interface, physDev, properties, format);
+            info.init(contextOptions, iface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1358,7 +1358,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         constexpr VkFormat format = VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
         auto& info = this->getFormatInfo(format);
         if (fSupportsYcbcrConversion) {
-            info.init(contextOptions, interface, physDev, properties, format);
+            info.init(contextOptions, iface, physDev, properties, format);
         }
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
             info.fColorTypeInfoCount = 1;
@@ -1378,7 +1378,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1387,7 +1387,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1396,7 +1396,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     {
         constexpr VkFormat format = VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
         auto& info = this->getFormatInfo(format);
-        info.init(contextOptions, interface, physDev, properties, format);
+        info.init(contextOptions, iface, physDev, properties, format);
         // Setting this to texel block size
         // No supported GrColorTypes.
     }
@@ -1457,7 +1457,7 @@ void GrVkCaps::FormatInfo::InitFormatFlags(VkFormatFeatureFlags vkFlags, uint16_
 }
 
 void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptions,
-                                            const skgpu::VulkanInterface* interface,
+                                            const skgpu::VulkanInterface* iface,
                                             VkPhysicalDevice physDev,
                                             const VkPhysicalDeviceProperties& physProps,
                                             VkFormat format) {
@@ -1466,7 +1466,7 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptio
                               VK_IMAGE_USAGE_SAMPLED_BIT |
                               VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     VkImageFormatProperties properties;
-    GR_VK_CALL(interface, GetPhysicalDeviceImageFormatProperties(physDev,
+    GR_VK_CALL(iface, GetPhysicalDeviceImageFormatProperties(physDev,
                                                                  format,
                                                                  VK_IMAGE_TYPE_2D,
                                                                  VK_IMAGE_TILING_OPTIMAL,
@@ -1505,17 +1505,17 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrContextOptions& contextOptio
 }
 
 void GrVkCaps::FormatInfo::init(const GrContextOptions& contextOptions,
-                                const skgpu::VulkanInterface* interface,
+                                const skgpu::VulkanInterface* iface,
                                 VkPhysicalDevice physDev,
                                 const VkPhysicalDeviceProperties& properties,
                                 VkFormat format) {
     VkFormatProperties props;
     memset(&props, 0, sizeof(VkFormatProperties));
-    GR_VK_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
+    GR_VK_CALL(iface, GetPhysicalDeviceFormatProperties(physDev, format, &props));
     InitFormatFlags(props.linearTilingFeatures, &fLinearFlags);
     InitFormatFlags(props.optimalTilingFeatures, &fOptimalFlags);
     if (fOptimalFlags & kRenderable_Flag) {
-        this->initSampleCounts(contextOptions, interface, physDev, properties, format);
+        this->initSampleCounts(contextOptions, iface, physDev, properties, format);
     }
 }
 
