@@ -491,7 +491,11 @@ optional("fontmgr_win_gdi") {
   public_defines = [ "SK_FONTMGR_GDI_AVAILABLE" ]
   public = skia_ports_windows_fonts_public
   sources = skia_ports_fonthost_win_sources
-  libs = [ "Gdi32.lib" ]
+  if (is_msvc) {
+    libs = [ "Gdi32.lib" ]
+  } else {
+    libs = [ "gdi32" ]
+  }
 }
 
 if (skia_lex) {
@@ -907,11 +911,12 @@ optional("gpu_shared") {
         public_deps += [ "//third_party/externals/dawn/src/dawn/native" ]
       }
       if (dawn_enable_d3d12) {
-        libs += [
-          "d3d12.lib",
-          "dxgi.lib",
-          "d3dcompiler.lib",
-        ]
+        if (is_msvc) {
+          libs += ["d3d12.lib", "dxgi.lib", "d3dcompiler.lib"]
+        } else {
+          libs += ["d3d12", "dxgi", "d3dcompiler"]
+        }
+
       } else if (dawn_enable_metal) {
         frameworks += [ "Metal.framework" ]
       }
@@ -1018,7 +1023,12 @@ optional("gpu") {
         "src/gpu/ganesh/gl/win/GrGLMakeWinInterface.cpp",
       ]
       if (target_cpu != "arm64") {
-        libs += [ "OpenGL32.lib" ]
+        if (is_msvc) {
+          libs += [ "OpenGL32.lib" ]
+        } else {
+          libs += [ "opengl32" ]
+        }
+
       }
     } else {
       sources += [ "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp" ]
@@ -1043,11 +1053,19 @@ optional("gpu") {
     if (skia_enable_direct3d_debug_layer) {
       public_defines += [ "SK_ENABLE_D3D_DEBUG_LAYER" ]
     }
-    libs += [
-      "d3d12.lib",
-      "dxgi.lib",
-      "d3dcompiler.lib",
-    ]
+    if(is_msvc) {
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+    } else {
+      libs += [
+        "d3d12",
+        "dxgi",
+        "d3dcompiler",
+      ]
+    }
   }
 
   cflags_objcc = []
@@ -1756,17 +1774,18 @@ skia_component("skia") {
                  "src/ports/SkDebug_win.cpp",
                  "src/ports/SkImageGeneratorWIC.cpp",
                ]
-    libs += [
-      "Ole32.lib",
-      "OleAut32.lib",
-    ]
-
+    if(is_msvc) {
+        libs += ["Ole32.lib","OleAut32.lib"]
+    } else {
+        libs += ["ole32","oleaut32"]
+    }
     if (!skia_enable_winuwp) {
-      libs += [
-        "FontSub.lib",
-        "User32.lib",
-        "Usp10.lib",
-      ]
+      if(is_msvc) {
+        libs += ["FontSub.lib", "User32.lib", "Usp10.lib"]
+      } else {
+        libs += ["fontsub", "user32", "usp10"]
+      }
+
     }
   } else {
     sources += [ "src/ports/SkOSFile_posix.cpp" ]
